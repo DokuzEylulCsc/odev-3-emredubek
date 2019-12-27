@@ -1,0 +1,152 @@
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <cstdlib>
+using namespace std;
+int main()
+{
+	//2017280020-emre dübek
+	/*
+	kullandigim ornek input dosyası :
+	10
+	B,A,D,D,C,B,D,A,C,C
+	N00000002,B, ,D,D,C,B,D,A,C,D
+	N00000023, , ,D,D,C,B,D,A,C,C
+	NA0000027,B,A,D,D, ,B, ,A,C,B
+	N00000035,B,A,C,D,B,B, ,A,C, 
+	*/
+	cout<<"-INPUT DOSYANIZIN ILK SATIRINDA SORU SAYISI,IKINCI SATIRINDA";
+	cout<<endl<<"-ARADA VIRGULLERLE CEVAP ANAHTARI,DIGER SATIRLARDA SIRASIYLA";
+	cout<<endl<<"-OGRENCI NUMARASI ve OGRENCILERIN CEVAPLARI (EGER BOS ISE BOSLUK BIRAKINIZ)"<<endl;
+	int satir=-2;//ilk iki satır soru sayısı ve cevap olacağı bilindigi için
+	bool tek=false;
+	string satirs;
+	ifstream satir1;
+	satir1.open("input.txt");//burada satır sayısını yani öğrrenci sayısını buluyoruz
+	if(satir1.is_open()){}//dosyanın acilip acilmadigini kontrol ettim
+	else
+	{
+		cout <<endl<<"DOSYA BULUNAMADI HEMEN UYGUN OZELLIKLERE SAHIP BIR DOSYA OLUSTURUN!" << endl;
+		system("pause");
+		return 0;
+	}
+	while(!satir1.eof())
+	{
+	getline(satir1,satirs);
+    satir++;
+    tek=!tek;//medyani bulmada kullanmak icin
+    if(satir>100)//ogrenci sayisi 100 den fazla olmasın diye
+	{
+		cout<<"OGRENCI SAYISI EN FAZLA 100 OLABILIR"<<endl;
+		system("pause");
+		return 0;
+	}
+	}
+	satir1.close();
+	ofstream cikti("output.txt");//çıktı dosyası açılışı
+	ifstream soru("input.txt");
+	int soru_sayisi,puan[satir][1],enbuyuk=0,enkucuk=101,aciklik,ortalama=0,medyan,k=0,sayac=0;
+	for(int i=0;i<satir;i++)
+	{
+		puan[i][0]=0;//puan dizisini sıfırlama
+	}
+	soru>>soru_sayisi;// ilk satirda soru sayisi olacagi bilindigi icin direk ilk satiri aldim
+	char cevaplar[soru_sayisi],ogr[soru_sayisi];
+	string cevap,cevap1,cevap2,gecici;
+	getline(soru,cevap);
+	getline(soru,cevap1);
+	for(int i=0;i<cevap1.length();i++)
+	{
+		if(cevap1[i]!=',')
+		{
+			cevaplar[k]=cevap1[i];//cevap anahtarı
+			k++;
+		}
+	}
+	k=0;
+	gecici='\0';
+	string numara[satir][1];
+	getline(soru,cevap2);
+	for(int i=0;i<cevap2.length();i++)
+	{
+		if(cevap2[i]!=',')
+			sayac++;//öğrenci numarasının boyunu öğrenmek için
+		else
+			break;
+	}
+	for(int p=0;p<satir;p++)
+	{
+	k=0;
+	for(int i=sayac;i<cevap2.length();i++)
+	{
+		if(cevap2[i]!=',')
+		{
+			ogr[k]=cevap2[i];
+			if(ogr[k]==cevaplar[k])
+			puan[p][0]+=4;
+			else if(ogr[k]==' ')
+			puan[p][0]+=0;
+			else if(ogr[k]!=cevaplar[k])
+				puan[p][0]-=1;
+			k++;
+		}
+	}
+	for(int i=0;i<cevap2.length();i++)
+	{
+		if(cevap2[i]!=',')
+			gecici+=cevap2[i];
+		else
+		{
+			numara[p][0]=gecici;
+			gecici='\0';
+			break;
+		}
+	}
+	getline(soru,cevap2);
+	ortalama+=puan[p][0];
+	if(puan[p][0]>=enbuyuk)
+	{
+		enbuyuk=puan[p][0];
+	}
+	if(puan[p][0]<=enkucuk)
+	{
+		enkucuk=puan[p][0];
+	}
+	}
+	int temp;
+	string temp1;
+	for(int i=0;i<satir;i++){//sıralama
+		for(int j=0;j<satir-1;j++){
+			if(puan[j][0]<puan[j+1][0]){
+			temp=puan[j][0];
+			puan[j][0]=puan[j+1][0];
+			puan[j+1][0]=temp;
+			temp1=numara[j][0];//numaraların yerini degistiriyor
+			numara[j][0]=numara[j+1][0];
+			numara[j+1][0]=temp1;
+			}
+		}
+	}
+	aciklik=((puan[0][0])-(puan[satir-1][0]));
+	if(tek==false)
+		medyan=((puan[(satir/2)-1][0]+puan[((satir/2))][0])/2);
+	else
+		medyan=puan[(satir/2)][0];
+	ortalama=ortalama/satir;
+	for(int i=0;i<satir;i++)
+	{
+		cikti<<numara[i][0]<<" "<<puan[i][0]<<endl;
+	}
+	cikti<<"EnBuyukNot->"<<enbuyuk<<","<<"EnKucukNot->"<<enkucuk<<","<<"Ortalama->"<<ortalama<<","<<"Medyan->"<<medyan<<","<<"Aciklik->"<<aciklik;
+	cikti.close();
+	soru.close();
+	/*yararlandıgım kaynaklar
+	
+	https://www.youtube.com/watch?v=E-6ZvxCzqcU
+	http://www.baskent.edu.tr/~tkaracay/etudio/ders/prg/c/string.htm
+	https://forum.donanimhaber.com/c-da-program-hemen-acilip-kapanmasin-diye--61572192
+	https://www.matematikciler.com/6-sinif-aritmetik-ortalama-ve-aciklik/
+	https://www.geeksforgeeks.org/getline-string-c/
+	https://www.yusufsezer.com.tr/cpp-dosya-islemleri/
+	*/
+}

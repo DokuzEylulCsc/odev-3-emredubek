@@ -90,7 +90,10 @@ int main()
 				puan[p][0]-=1;
 			k++;
 		}
+		
 	}
+	if(puan[p][0]<0)//EN KÜÇÜK NOT SIFIR OLMASI İÇİN
+		puan[p][0]=0;
 	for(int i=0;i<cevap2.length();i++)
 	{
 		if(cevap2[i]!=',')
